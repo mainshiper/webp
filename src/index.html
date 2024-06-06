@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="user-container">
+        <label for="nickname">대화명</label>
+        <input type="text" id="nickname" />
+      </div>
+      <div class="display-container">
+        <ul class="chatting-list">
+          <!-- 여기에 채팅 메시지들이 표시됩니다. -->
+        </ul>
+        <!-- Typing Indicator를 표시할 영역 추가 -->
+        <div class="typing-indicator" style="display: none">
+          누군가가 입력 중입니다...
+        </div>
+      </div>
+      <div class="input-container">
+        <span>
+          <input type="text" class="chatting-input" />
+          <button class="send-button">전송</button>
+        </span>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/chat.js"></script>
+  </body>
+</html>

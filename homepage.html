@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>웹 커뮤니티</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+</head>
+
+<body>
+  <header class="bg-dark text-white text-center py-3">
+    <h1>웹 커뮤니티</h1>
+  </header>
+  <div class="container mt-4">
+    <div class="row">
+      <!-- 게시글 목록 -->
+      <div class="col-md-9">
+        <form class="form-inline justify-content-center mb-4">
+          <input type="text" class="form-control mr-2" placeholder="검색어를 입력하세요..." />
+          <button type="button" class="btn btn-dark">검색</button>
+        </form>
+        <div class="text-center mb-4">
+          <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#writeModal" onclick="location.href='write.html'">
+            글 작성
+          </button>
+        </div>
+        <ul class="list-group" id="post-list">
+          <li class="list-group-item">게시글을 불러오는 중...</li>
+        </ul>
+      </div>
+      <!-- 로그인 폼 -->
+      <div class="col-md-3">
+        <div class="card" id="login-card">
+          <div class="card-body">
+            <form id="login-form">
+              <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" class="form-control" id="LoginEmail" placeholder="이메일" />
+              </div>
+              <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" class="form-control" id="LoginPassword" placeholder="비밀번호" />
+              </div>
+              <button type="button" class="btn btn-dark btn-block" id="LoginButton2">
+                로그인
+              </button>
+              <button type="button" class="btn btn-dark btn-block" id="GoogleLoginButton">
+                <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google Logo" /> 구글 로그인
+              </button>
+              <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#signupModal">
+                회원가입
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="card" id="welcome-card" style="display: none;">
+          <div class="card-body">
+            <p id="welcome-message"></p>
+            <button type="button" class="btn btn-dark btn-block" id="profile-button">프로필</button>
+            <button type="button" class="btn btn-dark btn-block" id="logout-button">로그아웃</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 회원가입 모달 -->
+  <div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="signupModalLabel">회원가입</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="signup-form">
+            <div class="form-group">
+              <label for="email">이메일</label>
+              <input type="email" class="form-control" id="SignUpEmail" placeholder="이메일" />
+            </div>
+            <div class="form-group">
+              <label for="password">비밀번호</label>
+              <input type="password" class="form-control" id="SignUpPassword" placeholder="비밀번호" />
+            </div>
+            <div class="form-group">
+              <label for="nickname">닉네임</label>
+              <input type="text" class="form-control" id="SignUpNickname" placeholder="닉네임" />
+            </div>
+            <button type="button" class="btn btn-dark btn-block" id="SignUpButton2">
+              회원가입
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 글 작성 모달 -->
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
+      authDomain: "website-b8e72.firebaseapp.com",
+      projectId: "website-b8e72",
+      storageBucket: "website-b8e72.appspot.com",
+      messagingSenderId: "36605001158",
+      appId: "1:36605001158:web:46eeeae785ca41693346c7",
+      measurementId: "G-NHP9CW0B2L",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth();
+
+    document.getElementById("SignUpButton2").addEventListener("click", (event) => {
+      event.preventDefault();
+      const SignUpEmail = document.getElementById("SignUpEmail").value;
+      const SignUpPassword = document.getElementById("SignUpPassword").value;
+      const SignUpNickname = document.getElementById("SignUpNickname").value;
+
+      createUserWithEmailAndPassword(auth, SignUpEmail, SignUpPassword)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          return updateProfile(user, { displayName: SignUpNickname });
+        })
+        .then(() => {
+          console.log("회원가입 및 닉네임 설정 성공");
+          alert("회원가입 및 닉네임 설정 성공");
+        })
+        .catch((error) => {
+          console.log("회원가입 실패");
+          alert("회원가입 실패");
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+    });
+
+    document.getElementById("LoginButton2").addEventListener("click", (event) => {
+      event.preventDefault();
+      const LoginEmail = document.getElementById("LoginEmail").value;
+      const LoginPassword = document.getElementById("LoginPassword").value;
+
+      signInWithEmailAndPassword(auth, LoginEmail, LoginPassword)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          document.getElementById("login-card").style.display = "none";
+          document.getElementById("welcome-card").style.display = "block";
+          document.getElementById("welcome-message").textContent = `${user.displayName || user.email}님 환영합니다.`;
+        })
+        .catch((error) => {
+          console.log("로그인 실패");
+          alert("로그인 실패");
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+    });
+
+    document.getElementById("GoogleLoginButton").addEventListener("click", (event) => {
+      event.preventDefault();
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          document.getElementById("login-card").style.display = "none";
+          document.getElementById("welcome-card").style.display = "block";
+          document.getElementById("welcome-message").textContent = `${user.displayName || user.email}님 환영합니다.`;
+        })
+        .catch((error) => {
+          console.log("구글 로그인 실패");
+          alert("구글 로그인 실패");
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+    });
+
+    document.getElementById("logout-button").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        // Sign-out successful.
+        document.getElementById("login-card").style.display = "block";
+        document.getElementById("welcome-card").style.display = "none";
+        alert("로그아웃 성공");
+      }).catch((error) => {
+        // An error happened.
+        console.log("로그아웃 실패");
+        alert("로그아웃 실패");
+      });
+    });
+  </script>
+</body>
+</html>
