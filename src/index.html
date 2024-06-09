@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Chat Room</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
@@ -14,9 +14,8 @@
       </div>
       <div class="display-container">
         <ul class="chatting-list">
-          <!-- 여기에 채팅 메시지들이 표시됩니다. -->
+          <!-- Chat messages will be displayed here -->
         </ul>
-        <!-- Typing Indicator를 표시할 영역 추가 -->
         <div class="typing-indicator" style="display: none">
           누군가가 입력 중입니다...
         </div>
@@ -29,6 +28,9 @@
       </div>
     </div>
 
+    <!-- Include Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>
   </body>

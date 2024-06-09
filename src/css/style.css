@@ -1,132 +1,151 @@
-*{
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-html, body{
+html, body {
   height: 100%;
+  font-family: Arial, sans-serif;
 }
 
-.wrapper{
+.wrapper {
   height: 100%;
-  width: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .user-container {
   background: #a9bdce;
-  flex:1; 
+  padding: 1rem;
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  padding: 0.5rem;
-
 }
-.user-container label{
-  font-size: 14px;
+
+.user-container label {
   margin-right: 1rem;
 }
-.user-container input{
-  border-radius: 3px;
-  border: none;
-  height: 100%;
-}
-.display-container{
-  background:#b2c7d9;
-  flex:12;
-  overflow-y: scroll;
-}
 
-.input-container{
-  flex:1;
-  display: flex;
-  justify-content: stretch;
-  align-items: stretch;
-}
-.input-container span{
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 0.3rem;
-  width: 100%;
-}
-.chatting-input{
-  font-size: 12px;
-  height: 100%;
-  flex: 8;
-  border: none;
-}
-
-.send-button{
+.user-container input {
   flex: 1;
-  background: #ffeb33;
-  border: none;
-  height: 100%;
-  border-radius: 3px;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
-.chatting-list li{
-  width: 90%; 
-  padding: 0.3rem;
+.display-container {
+  background: #b2c7d9;
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.chatting-list {
+  list-style: none;
+}
+
+.chatting-list li {
   display: flex;
-  justify-content: flex-start;
   align-items: flex-end;
-  margin-top: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.profile{
+.profile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex: 1;
+  margin-right: 0.5rem;
 }
-.profile .user{
-  font-size: 10px;
+
+.profile .user {
+  font-size: 12px;
   margin-bottom: 0.3rem;
 }
 
-.profile .image{
+.profile .image {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  width: 50px;
-  height: 50px;
 }
 
-.message{
-  border-radius: 5px;
+.message {
+  max-width: 60%;
   padding: 0.5rem;
-  font-size: 12px;
-  margin: 0 5px;
-  flex: 7;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-right: 10px; /* 메시지와 시간을 띄우기 위한 오른쪽 마진 */
 }
-.time{
+
+.time {
   font-size: 10px;
-  margin: 0 5px;
+  margin-left: 10px; /* 메시지와 시간을 띄우기 위한 왼쪽 마진 */
+  color: #555;
 }
-.sent{
-  flex-direction: row-reverse;
-  float: right;
+
+.sent {
+  justify-content: flex-end;
 }
-.sent .message{
+
+.sent .message {
   background: #ffeb33;
 }
-.received .message{
+
+.received {
+  justify-content: flex-start;
+}
+
+.received .message {
   background: #fff;
+}
+
+.input-container {
+  display: flex;
+  padding: 1rem;
+  background: #f1f1f1;
+  align-items: center;
+}
+
+.input-container span {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.input-container input {
+  flex: 1; /* 입력 칸이 가용 가능한 공간을 모두 차지하도록 설정 */
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-right: 1rem;
+  width: calc(100% - 110px); /* 입력 칸이 버튼을 제외한 전체 너비를 차지하도록 설정 */
+}
+
+.send-button {
+  padding: 0.5rem 1rem;
+  background: #ffeb33;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px; /* 버튼 크기를 조절하기 위해 폰트 크기를 크게 설정 */
+  flex-shrink: 0; /* 버튼이 축소되지 않도록 설정 */
+  width: 100px; /* 버튼이 고정된 크기를 유지하도록 설정 */
+  height: 100%; /* 버튼이 입력 필드의 높이에 맞춰지도록 설정 */
 }
 
 .typing-indicator {
   animation: blink 1s infinite alternate;
+  margin-top: 1rem;
+  color: #555;
+  text-align: center;
 }
 
 @keyframes blink {
   0% {
-      opacity: 0;
+    opacity: 0;
   }
   100% {
-      opacity: 1;
+    opacity: 1;
   }
 }
-

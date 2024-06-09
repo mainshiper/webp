@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 페이지</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        tr.post-row {
+            cursor: pointer;
+        }
+
+        tr.post-row:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-3">프로필 페이지</h1>
+        <div id="profile-info" class="mb-4"></div>
+        
+        <h2 class="mb-3">작성한 게시물</h2>
+        <div id="created-posts" class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>카테고리</th>
+                        <th>제목</th>
+                        <th>작성일</th>
+                    </tr>
+                </thead>
+                <tbody id="created-post-list">
+                    <tr>
+                        <td colspan="3">게시글을 불러오는 중...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="mb-3">참여한 게시물</h2>
+        <div id="participated-posts" class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>카테고리</th>
+                        <th>제목</th>
+                        <th>작성일</th>
+                    </tr>
+                </thead>
+                <tbody id="participated-post-list">
+                    <tr>
+                        <td colspan="3">게시글을 불러오는 중...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
+            authDomain: "website-b8e72.firebaseapp.com",
+            projectId: "website-b8e72",
+            storageBucket: "website-b8e72.appspot.com",
+            messagingSenderId: "36605001158",
+            appId: "1:36605001158:web:46eeeae785ca41693346c7",
+            measurementId: "G-NHP9CW0B2L"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const db = getFirestore(app);
+
+        // 사용자 로그인 상태 확인 및 프로필 정보 로드
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const emailLocalPart = user.email.split('@')[0]; // 이메일 로컬 부분만 사용
+                document.getElementById('profile-info').innerHTML = `
+                    <p><strong>아이디:</strong> ${emailLocalPart}</p>
+                    <p><strong>이메일:</strong> ${user.email}</p>
+                `;
+
+                // 사용자가 작성한 게시글 로드
+                await loadUserPosts(user.uid);
+                // 사용자가 참여한 게시글 로드
+                await loadParticipatedPosts(user.uid);
+            } else {
+                // 사용자가 로그인되어 있지 않으면 로그인 페이지로 리디렉션
+                window.location.href = "login.html";
+            }
+        });
+
+        async function loadUserPosts(userId) {
+            const postList = document.getElementById('created-post-list');
+            postList.innerHTML = '<tr><td colspan="3">게시글을 불러오는 중...</td></tr>';
+            try {
+                const q = query(collection(db, "posts"), where("authorId", "==", userId));
+                const querySnapshot = await getDocs(q);
+                postList.innerHTML = '';
+                if (querySnapshot.empty) {
+                    postList.innerHTML = '<tr><td colspan="3">작성한 게시물이 없습니다.</td></tr>';
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const post = doc.data();
+                        const tr = document.createElement('tr');
+                        tr.classList.add('post-row');
+                        tr.addEventListener('click', () => {
+                            location.href = `view.html?id=${doc.id}`;
+                        });
+                        tr.innerHTML = `
+                            <td>${post.category}</td>
+                            <td>${post.title}</td>
+                            <td>${new Date(post.timestamp.seconds * 1000).toLocaleDateString()}</td>`;
+                        postList.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading posts: ", error);
+                postList.innerHTML = '<tr><td colspan="3">게시글을 불러오는데 실패했습니다.</td></tr>';
+            }
+        }
+
+        async function loadParticipatedPosts(userId) {
+            const postList = document.getElementById('participated-post-list');
+            postList.innerHTML = '<tr><td colspan="3">게시글을 불러오는 중...</td></tr>';
+            try {
+                const q = query(collection(db, "comments"), where("userId", "==", userId));
+                const querySnapshot = await getDocs(q);
+                postList.innerHTML = '';
+                if (querySnapshot.empty) {
+                    postList.innerHTML = '<tr><td colspan="3">참여한 게시물이 없습니다.</td></tr>';
+                } else {
+                    querySnapshot.forEach(async (doc) => {
+                        const comment = doc.data();
+                        const postRef = doc(db, "posts", comment.postId);
+                        const postDoc = await getDoc(postRef);
+                        if (postDoc.exists()) {
+                            const post = postDoc.data();
+                            const tr = document.createElement('tr');
+                            tr.classList.add('post-row');
+                            tr.addEventListener('click', () => {
+                                location.href = `view.html?id=${postDoc.id}`;
+                            });
+                            tr.innerHTML = `
+                                <td>${post.category}</td>
+                                <td>${post.title}</td>
+                                <td>${new Date(post.timestamp.seconds * 1000).toLocaleDateString()}</td>`;
+                            postList.appendChild(tr);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading posts: ", error);
+                postList.innerHTML = '<tr><td colspan="3">게시글을 불러오는데 실패했습니다.</td></tr>';
+            }
+        }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
