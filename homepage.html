@@ -154,7 +154,7 @@
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcsom/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -236,6 +236,8 @@
                     document.getElementById('login-card').style.display = 'none';
                     document.getElementById('welcome-card').style.display = 'block';
                     document.getElementById('welcome-message').textContent = `${emailLocalPart}님 환영합니다.`;
+                    localStorage.setItem('userId', user.uid);
+                    localStorage.setItem('nickname', emailLocalPart);
                 })
                 .catch((error) => {
                     console.log('로그인 실패');
@@ -255,6 +257,8 @@
                     document.getElementById('login-card').style.display = 'none';
                     document.getElementById('welcome-card').style.display = 'block';
                     document.getElementById('welcome-message').textContent = `${emailLocalPart}님 환영합니다.`;
+                    localStorage.setItem('userId', user.uid);
+                    localStorage.setItem('nickname', emailLocalPart);
                 })
                 .catch((error) => {
                     console.log('구글 로그인 실패');
@@ -271,6 +275,8 @@
                     document.getElementById('login-card').style.display = 'block';
                     document.getElementById('welcome-card').style.display = 'none';
                     alert('로그아웃 성공');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('nickname');
                 })
                 .catch((error) => {
                     // An error happened.

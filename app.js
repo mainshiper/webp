@@ -4,11 +4,10 @@ const path = require("path");
 const http = require("http");
 const server = http.createServer(app);
 const socketIO = require("socket.io");
-const moment = require("moment");
 const io = socketIO(server);
-require('dotenv').config(); // .env 파일에서 환경 변수를 로드하기 위해 필요합니다.
+require('dotenv').config();
 const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
-const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
+const { getFirestore } = require('firebase-admin/firestore');
 
 // Firebase Admin SDK 초기화
 const admin = require('firebase-admin');
@@ -20,41 +19,81 @@ admin.initializeApp({
 
 const db = getFirestore();
 
-console.log(__dirname);
-
 app.use(express.static(path.join(__dirname, "src")));
 const PORT = process.env.PORT || 5000;
 app.get('/homepage', function (req, res) {
   res.sendFile(__dirname + '/homepage.html');
 });
+app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/homepage.html');
+});
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
+  console.log('a user connected');
+
+  socket.on('joinRoom', async (roomId) => {
+    if (!roomId) {
+      console.error('Room ID is not provided.');
+      return;
+    }
+
+    socket.join(roomId);
+    console.log(`User joined room: ${roomId}`);
+
+    // 클라이언트가 연결되면 Firestore에서 채팅 기록을 불러와 전송
+    try {
+      const roomRef = db.collection('chats').doc(roomId);
+      const roomDoc = await roomRef.get();
+      if (roomDoc.exists) {
+        const chatHistory = roomDoc.data().messages || [];
+        socket.emit('loadChatHistory', chatHistory);
+      } else {
+        await roomRef.set({ messages: [] });
+        socket.emit('loadChatHistory', []);
+      }
+    } catch (error) {
+      console.error("Error loading chat history: ", error);
+    }
+  });
+
   socket.on("chatting", async (data) => {
-    const { name, msg } = data;
-    const time = moment(new Date()).format("h:mm A");
-    io.emit("chatting", {
+    const { name, msg, roomId } = data;
+    if (!roomId) {
+      console.error('Room ID is not provided.');
+      return;
+    }
+
+    const time = new Date().toISOString(); // ISO 형식으로 시간 저장
+    const chatData = {
       name,
       msg,
       time
-    });
+    };
 
-    // Firestore에 채팅 메시지 저장
     try {
-      await db.collection('chats').add({
-        name,
-        msg,
-        time: new Date()
+      const roomRef = db.collection('chats').doc(roomId);
+      await roomRef.update({
+        messages: admin.firestore.FieldValue.arrayUnion(chatData)
       });
-      console.log("Message stored in Firestore");
+      io.to(roomId).emit("chatting", chatData);
+      console.log("Message added to Firestore document");
     } catch (error) {
       console.error("Error storing message in Firestore: ", error);
     }
   });
 
-  // Typing Indicator 이벤트 처리
   socket.on("typing", (data) => {
-    const { username } = data;
-    io.emit("typing", { username });
+    const { username, roomId } = data;
+    if (!roomId) {
+      console.error('Room ID is not provided.');
+      return;
+    }
+
+    socket.to(roomId).emit("typing", { username });
+  });
+
+  socket.on("disconnect", () => {
+    console.log('user disconnected');
   });
 });
 
