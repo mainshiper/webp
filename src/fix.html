@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>새로운 글쓰기</title>
+    <title>게시글 수정</title>
     <!-- Bootstrap CSS -->
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -15,7 +15,7 @@
       rel="stylesheet"
     />
     <style>
-      #write-title:hover {
+      #fix-title:hover {
         cursor: pointer;
         text-decoration: underline;
       }
@@ -23,12 +23,17 @@
   </head>
   <body>
     <header class="bg-dark text-white text-center py-3">
-      <h1 id="write-title" class="mt-3 mb-3 click-animation">웹 커뮤니티</h1>
+      <h1 id="fix-title" class="mt-3 mb-3 click-animation">웹 커뮤니티</h1>
     </header>
     <div class="container">
-      <h1 class="mt-5 mb-3">새로운 글쓰기</h1>
-      <button id="back-button" class="btn btn-secondary mb-3">뒤로 가기</button>
-      <form id="write-form">
+      <!-- 뒤로가기 버튼 -->
+      <button id="back-button" class="btn btn-secondary click-animation">
+        <span>&larr;</span>
+      </button>
+
+      <h1>게시글 수정</h1>
+
+      <form id="edit-form">
         <div class="form-group">
           <label for="title">제목</label>
           <input
@@ -62,7 +67,7 @@
           <label for="content">내용</label>
           <div id="editor" style="height: 300px"></div>
         </div>
-        <button type="submit" class="btn btn-primary">글 작성</button>
+        <button type="submit" class="btn btn-primary">수정 완료</button>
       </form>
     </div>
 
@@ -76,9 +81,9 @@
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
       import {
         getFirestore,
-        collection,
-        addDoc,
-        serverTimestamp,
+        doc,
+        updateDoc,
+        getDoc,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
       // Your web app's Firebase configuration
@@ -102,7 +107,17 @@
         theme: "snow",
       });
 
-      // 사용자 로그인 상태 확인 및 작성자 필드 채우기
+      // Local storage에서 게시물 정보 가져오기
+      const postId = localStorage.getItem("editPostId");
+      const postTitle = localStorage.getItem("editPostTitle");
+      const postContent = localStorage.getItem("editPostContent");
+      const postCategory = localStorage.getItem("editPostCategory");
+
+      // 폼에 기존 게시물 정보 채우기
+      document.getElementById("title").value = postTitle;
+      quill.clipboard.dangerouslyPasteHTML(postContent); // 기존 내용을 Quill 에디터에 채우기
+      document.getElementById("category").value = postCategory;
+
       onAuthStateChanged(auth, (user) => {
         if (user) {
           const nickname = localStorage.getItem("nickname");
@@ -113,52 +128,33 @@
         }
       });
 
-      // 글쓰기 폼 제출 시 Firestore에 저장하는 함수
-      const writeForm = document.getElementById("write-form");
-      writeForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      document
+        .getElementById("edit-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const newTitle = document.getElementById("title").value;
+          const newContent = quill.root.innerHTML;
+          const newCategory = document.getElementById("category").value;
 
-        const title = document.getElementById("title").value.trim();
-        const author = document.getElementById("author").value.trim();
-        const authorId = auth.currentUser.uid; // 사용자 ID 가져오기
-        const category = document.getElementById("category").value;
-        const content = quill.root.innerHTML.trim();
-
-        // 제목과 내용을 입력했는지 확인
-        if (!title) {
-          alert("제목을 입력하세요.");
-          return;
-        }
-
-        if (content === "<p><br></p>" || !content) {
-          alert("내용을 입력하세요.");
-          return;
-        }
-
-        try {
-          const docRef = await addDoc(collection(db, "posts"), {
-            title: title,
-            author: author,
-            authorId: authorId, // 사용자 ID 추가
-            category: category,
-            content: content,
-            timestamp: serverTimestamp(), // 서버 타임스탬프 추가
-          });
-          console.log("Document written with ID: ", docRef.id);
-          alert("글이 성공적으로 작성되었습니다.");
-          // 글 작성 후 방금 작성한 글로 이동
-          window.location.href = `view.html?id=${docRef.id}`;
-        } catch (e) {
-          console.error("Error adding document: ", e);
-          alert("글 작성 중 오류가 발생했습니다.");
-        }
-      });
-
-      // 뒤로 가기 버튼 클릭 시 이전 페이지로 이동
+          try {
+            const postRef = doc(db, "posts", postId);
+            await updateDoc(postRef, {
+              title: newTitle,
+              content: newContent,
+              category: newCategory,
+            });
+            alert("게시글이 수정되었습니다.");
+            window.location.href = "profile.html";
+          } catch (error) {
+            console.error("Error updating document: ", error);
+            alert("게시글 수정에 실패했습니다.");
+          }
+        });
       document.getElementById("back-button").addEventListener("click", () => {
-        window.history.back();
+        history.back();
       });
-      document.getElementById("write-title").addEventListener("click", () => {
+
+      document.getElementById("fix-title").addEventListener("click", () => {
         window.location.href = "homepage.html";
       });
     </script>

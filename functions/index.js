@@ -1,5 +1,24 @@
 const functions = require('firebase-functions');
-const express = require('express');
-const app = require('./app'); // app.js 파일을 불러옵니다
+const admin = require('firebase-admin');
 
-exports.app = functions.https.onRequest(app);
+admin.initializeApp();
+
+exports.sendNotification = functions.https.onRequest(async (req, res) => {
+    const { token, title, body } = req.body;
+
+    const message = {
+        notification: {
+            title: title,
+            body: body,
+        },
+        token: token,
+    };
+
+    try {
+        await admin.messaging().send(message);
+        res.status(200).send('Notification sent successfully');
+    } catch (error) {
+        console.error('Error sending notification:', error);
+        res.status(500).send('Error sending notification');
+    }
+});

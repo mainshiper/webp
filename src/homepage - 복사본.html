@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>웹 커뮤니티</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <style>
+      tr.post-row {
+        transition: background-color 0.3s;
+        cursor: pointer;
+      }
+
+      tr.post-row:hover {
+        background-color: #f1f1f1;
+      }
+
+      .email-container {
+        display: flex;
+      }
+
+      .email-container input[type="text"],
+      .email-container input[type="email"] {
+        width: 50%;
+      }
+
+      .email-container input[type="text"] {
+        border-right: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      .email-container select,
+      .email-container input[list] {
+        width: 50%;
+        border-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="bg-dark text-white text-center py-3">
+      <h1>웹 커뮤니티</h1>
+    </header>
+    <div class="container mt-4">
+      <div class="row">
+        <!-- 게시글 목록 -->
+        <div class="col-md-9">
+          <form
+            id="search-form"
+            class="form-inline justify-content-center mb-4"
+          >
+            <input
+              type="text"
+              id="search-input"
+              class="form-control mr-2"
+              placeholder="검색어를 입력하세요..."
+            />
+            <button type="submit" class="btn btn-dark">검색</button>
+          </form>
+          <div class="text-center mb-4">
+            <button
+              type="button"
+              class="btn btn-dark"
+              data-toggle="modal"
+              data-target="#writeModal"
+              id="writebutton"
+            >
+              글 작성
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th>카테고리</th>
+                  <th>제목</th>
+                  <th>글쓴이</th>
+                  <th>작성일</th>
+                </tr>
+              </thead>
+              <tbody id="post-list">
+                <tr>
+                  <td colspan="4">게시글을 불러오는 중...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- 회원가입 모달 -->
+        <div
+          class="modal fade"
+          id="signupModal"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="signupModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="signupModalLabel">회원가입</h5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form id="signup-form">
+                  <div class="form-group">
+                    <label for="SignUpEmailUser">이메일</label>
+                    <div class="email-container">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="SignUpEmailUser"
+                        placeholder="이메일"
+                      />
+                      <input
+                        list="emailDomains"
+                        class="form-control"
+                        id="SignUpEmailDomain"
+                        placeholder="도메인"
+                      />
+                      <datalist id="emailDomains">
+                        <option value="naver.com"></option>
+                        <option value="daum.net"></option>
+                        <option value="gmail.com"></option>
+                      </datalist>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-secondary btn-block mt-2"
+                      id="CheckEmailButton"
+                    >
+                      이메일 중복 검사
+                    </button>
+                    <small id="emailCheckResult" class="form-text"></small>
+                  </div>
+                  <div class="form-group">
+                    <label for="SignUpPassword">비밀번호</label>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="SignUpPassword"
+                      placeholder="비밀번호"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="SignUpNickname">닉네임</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="SignUpNickname"
+                      placeholder="닉네임"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-secondary btn-block mt-2"
+                      id="CheckNicknameButton"
+                    >
+                      닉네임 중복 검사
+                    </button>
+                    <small id="nicknameCheckResult" class="form-text"></small>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-dark btn-block"
+                    id="SignUpButton2"
+                  >
+                    회원가입
+                  </button>
+                  <small id="signUpError" class="form-text text-danger"></small>
+                </form>
+                <div class="text-center mt-3">
+                  <a
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#findIdModal"
+                    data-dismiss="modal"
+                    >아이디(이메일) 찾기</a
+                  >
+                  /
+                  <a
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#resetPasswordModal"
+                    data-dismiss="modal"
+                    >비밀번호 재설정</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 비밀번호 재설정 모달 -->
+        <div
+          class="modal fade"
+          id="resetPasswordModal"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="resetPasswordModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordModalLabel">
+                  비밀번호 재설정
+                </h5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form id="reset-password-form">
+                  <div class="form-group">
+                    <label for="resetEmail">이메일</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="resetEmail"
+                      placeholder="이메일"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-dark btn-block"
+                    id="resetPasswordButton"
+                  >
+                    비밀번호 재설정 이메일 보내기
+                  </button>
+                  <small id="resetPasswordResult" class="form-text"></small>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 아이디(이메일) 찾기 모달 -->
+        <div
+          class="modal fade"
+          id="findIdModal"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="findIdModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="findIdModalLabel">
+                  아이디(이메일) 찾기
+                </h5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form id="find-id-form">
+                  <div class="form-group">
+                    <label for="findNickname">닉네임</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="findNickname"
+                      placeholder="닉네임"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-dark btn-block"
+                    id="findIdButton"
+                  >
+                    아이디(이메일) 찾기
+                  </button>
+                  <small id="findIdResult" class="form-text"></small>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 로그인 폼 -->
+        <div class="col-md-3">
+          <div class="card" id="login-card">
+            <div class="card-body">
+              <form id="login-form">
+                <div class="form-group">
+                  <label for="LoginEmail">이메일</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="LoginEmail"
+                    placeholder="이메일"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="LoginPassword">비밀번호</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="LoginPassword"
+                    placeholder="비밀번호"
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-dark btn-block"
+                  id="LoginButton2"
+                >
+                  로그인
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-dark btn-block"
+                  id="GoogleLoginButton"
+                >
+                  <img
+                    src="https://img.icons8.com/color/16/000000/google-logo.png"
+                    alt="Google Logo"
+                  />
+                  구글 로그인
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger btn-block"
+                  data-toggle="modal"
+                  data-target="#signupModal"
+                >
+                  회원가입
+                </button>
+                <div class="text-center mt-3">
+                  <a
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#findIdModal"
+                    data-dismiss="modal"
+                    >아이디(이메일) 찾기</a
+                  >
+                  /
+                  <a
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#resetPasswordModal"
+                    data-dismiss="modal"
+                    >비밀번호 재설정</a
+                  >
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="card" id="welcome-card" style="display: none">
+            <div class="card-body">
+              <p id="welcome-message"></p>
+              <button
+                type="button"
+                class="btn btn-dark btn-block"
+                id="profile-button"
+              >
+                프로필
+              </button>
+              <button
+                type="button"
+                class="btn btn-dark btn-block"
+                id="logout-button"
+              >
+                로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        sendPasswordResetEmail,
+        sendEmailVerification,
+        signOut,
+        GoogleAuthProvider,
+        signInWithPopup,
+        updateProfile,
+        setPersistence,
+        browserLocalPersistence,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        collection,
+        query,
+        where,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
+        authDomain: "website-b8e72.firebaseapp.com",
+        projectId: "website-b8e72",
+        storageBucket: "website-b8e72.appspot.com",
+        messagingSenderId: "36605001158",
+        appId: "1:36605001158:web:46eeeae785ca41693346c7",
+        measurementId: "G-NHP9CW0B2L",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const auth = getAuth();
+      const db = getFirestore(app);
+
+      // Set persistence to LOCAL
+      setPersistence(auth, browserLocalPersistence).catch((error) => {
+        console.error("Error setting persistence:", error);
+      });
+
+      // 이메일 중복 검사 함수
+      async function checkEmail(email) {
+        const q = query(collection(db, "users"), where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        return !querySnapshot.empty;
+      }
+
+      // 닉네임 중복 검사 함수
+      async function checkNickname(nickname) {
+        const q = query(
+          collection(db, "users"),
+          where("nickname", "==", nickname)
+        );
+        const querySnapshot = await getDocs(q);
+        return !querySnapshot.empty;
+      }
+
+      // 이메일 중복 검사 버튼 클릭 이벤트
+      document
+        .getElementById("CheckEmailButton")
+        .addEventListener("click", async () => {
+          const emailUser = document.getElementById("SignUpEmailUser").value;
+          const emailDomain =
+            document.getElementById("SignUpEmailDomain").value;
+          const email = `${emailUser}@${emailDomain}`;
+
+          if (emailUser && emailDomain) {
+            const isDuplicate = await checkEmail(email);
+            const resultElement = document.getElementById("emailCheckResult");
+            if (isDuplicate) {
+              resultElement.textContent = "이미 사용 중인 이메일입니다.";
+              resultElement.style.color = "red";
+            } else {
+              resultElement.textContent = "사용 가능한 이메일입니다.";
+              resultElement.style.color = "green";
+            }
+          } else {
+            alert("이메일을 올바르게 입력해주세요.");
+          }
+        });
+
+      // 닉네임 중복 검사 버튼 클릭 이벤트
+      document
+        .getElementById("CheckNicknameButton")
+        .addEventListener("click", async () => {
+          const nickname = document.getElementById("SignUpNickname").value;
+          if (nickname) {
+            const isDuplicate = await checkNickname(nickname);
+            const resultElement = document.getElementById(
+              "nicknameCheckResult"
+            );
+            if (isDuplicate) {
+              resultElement.textContent = "이미 사용 중인 닉네임입니다.";
+              resultElement.style.color = "red";
+            } else {
+              resultElement.textContent = "사용 가능한 닉네임입니다.";
+              resultElement.style.color = "green";
+            }
+          }
+        });
+
+      document
+        .getElementById("SignUpButton2")
+        .addEventListener("click", async (event) => {
+          event.preventDefault();
+          const emailUser = document.getElementById("SignUpEmailUser").value;
+          const emailDomain =
+            document.getElementById("SignUpEmailDomain").value;
+          const email = `${emailUser}@${emailDomain}`;
+          const SignUpPassword =
+            document.getElementById("SignUpPassword").value;
+          const SignUpNickname =
+            document.getElementById("SignUpNickname").value;
+
+          const emailDuplicate = await checkEmail(email);
+          const nicknameDuplicate = await checkNickname(SignUpNickname);
+
+          if (emailDuplicate) {
+            alert("이미 사용 중인 이메일입니다.");
+            return;
+          }
+
+          if (nicknameDuplicate) {
+            alert("이미 사용 중인 닉네임입니다.");
+            return;
+          }
+
+          createUserWithEmailAndPassword(auth, email, SignUpPassword)
+            .then((userCredential) => {
+              const user = userCredential.user;
+              return updateProfile(user, { displayName: SignUpNickname })
+                .then(() => {
+                  const userRef = doc(db, "users", user.uid);
+                  return setDoc(userRef, {
+                    nickname: SignUpNickname,
+                    email: email,
+                  });
+                })
+                .then(() => {
+                  return sendEmailVerification(auth.currentUser);
+                });
+            })
+            .then(() => {
+              console.log("회원가입 및 닉네임 설정 성공");
+              alert(
+                "회원가입 및 닉네임 설정 성공. 인증 이메일을 확인해주세요."
+              );
+              document.getElementById("signup-form").reset();
+              $("#signupModal").modal("hide");
+            })
+            .catch((error) => {
+              console.log("회원가입 실패");
+              const errorMessage = error.message;
+              document.getElementById("signUpError").textContent = errorMessage;
+            });
+        });
+
+      // 로그인 이벤트
+      document
+        .getElementById("LoginButton2")
+        .addEventListener("click", (event) => {
+          event.preventDefault();
+          const LoginEmail = document.getElementById("LoginEmail").value;
+          const LoginPassword = document.getElementById("LoginPassword").value;
+
+          signInWithEmailAndPassword(auth, LoginEmail, LoginPassword)
+            .then((userCredential) => {
+              const user = userCredential.user;
+              if (!user.emailVerified) {
+                alert(
+                  "이메일 인증 후 로그인할 수 있습니다. 이메일을 확인해주세요."
+                );
+                signOut(auth);
+                return;
+              }
+              const emailLocalPart = user.email.split("@")[0]; // 이메일 로컬 부분만 사용
+              document.getElementById("login-card").style.display = "none";
+              document.getElementById("welcome-card").style.display = "block";
+              document.getElementById(
+                "welcome-message"
+              ).textContent = `${emailLocalPart}님 환영합니다.`;
+              localStorage.setItem("userId", user.uid);
+              localStorage.setItem("nickname", emailLocalPart);
+            })
+            .catch((error) => {
+              console.log("로그인 실패");
+              alert("로그인 실패");
+              const errorMessage = error.message;
+              document.getElementById("loginError").textContent = errorMessage;
+            });
+        });
+
+      document
+        .getElementById("GoogleLoginButton")
+        .addEventListener("click", (event) => {
+          event.preventDefault();
+          const provider = new GoogleAuthProvider();
+          signInWithPopup(auth, provider)
+            .then((result) => {
+              const user = result.user;
+              if (!user.emailVerified) {
+                alert(
+                  "이메일 인증 후 로그인할 수 있습니다. 이메일을 확인해주세요."
+                );
+                signOut(auth);
+                return;
+              }
+              const emailLocalPart = user.email.split("@")[0]; // 이메일 로컬 부분만 사용
+              document.getElementById("login-card").style.display = "none";
+              document.getElementById("welcome-card").style.display = "block";
+              document.getElementById(
+                "welcome-message"
+              ).textContent = `${emailLocalPart}님 환영합니다.`;
+              localStorage.setItem("userId", user.uid);
+              localStorage.setItem("nickname", emailLocalPart);
+            })
+            .catch((error) => {
+              console.log("구글 로그인 실패");
+              alert("구글 로그인 실패");
+              const errorMessage = error.message;
+            });
+        });
+
+      document.getElementById("logout-button").addEventListener("click", () => {
+        signOut(auth)
+          .then(() => {
+            // Sign-out successful.
+            document.getElementById("login-card").style.display = "block";
+            document.getElementById("welcome-card").style.display = "none";
+            alert("로그아웃 성공");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("nickname");
+          })
+          .catch((error) => {
+            // An error happened.
+            console.log("로그아웃 실패");
+            alert("로그아웃 실패");
+          });
+      });
+
+      document.getElementById("writebutton").addEventListener("click", () => {
+        location.href = "write.html";
+      });
+      document
+        .getElementById("profile-button")
+        .addEventListener("click", () => {
+          location.href = "profile.html";
+        });
+
+      // 비밀번호 재설정
+      document
+        .getElementById("resetPasswordButton")
+        .addEventListener("click", () => {
+          const resetEmail = document.getElementById("resetEmail").value;
+          sendPasswordResetEmail(auth, resetEmail)
+            .then(() => {
+              document.getElementById("resetPasswordResult").textContent =
+                "비밀번호 재설정 이메일을 보냈습니다.";
+              document.getElementById("resetPasswordResult").style.color =
+                "green";
+            })
+            .catch((error) => {
+              const errorMessage = error.message;
+              document.getElementById(
+                "resetPasswordResult"
+              ).textContent = `에러: ${errorMessage}`;
+              document.getElementById("resetPasswordResult").style.color =
+                "red";
+            });
+        });
+
+      // 아이디(이메일) 찾기
+      document
+        .getElementById("findIdButton")
+        .addEventListener("click", async () => {
+          const findNickname = document.getElementById("findNickname").value;
+          const q = query(
+            collection(db, "users"),
+            where("nickname", "==", findNickname)
+          );
+          const querySnapshot = await getDocs(q);
+          const resultElement = document.getElementById("findIdResult");
+          if (!querySnapshot.empty) {
+            querySnapshot.forEach((doc) => {
+              resultElement.textContent = `이메일: ${doc.data().email}`;
+              resultElement.style.color = "green";
+            });
+          } else {
+            resultElement.textContent =
+              "해당 닉네임으로 등록된 이메일을 찾을 수 없습니다.";
+            resultElement.style.color = "red";
+          }
+        });
+
+      function timestampToDate(timestamp) {
+        if (
+          timestamp &&
+          timestamp.seconds !== undefined &&
+          timestamp.nanoseconds !== undefined
+        ) {
+          const milliseconds =
+            timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000;
+          return new Date(milliseconds);
+        } else {
+          return new Date(timestamp); // assuming the timestamp is already in milliseconds if not a Firestore timestamp
+        }
+      }
+      async function deleteUserAndData(userId) {
+        // Firestore에서 사용자 데이터 삭제
+        await deleteDoc(doc(db, "users", userId));
+        // Firebase Authentication에서 사용자 삭제
+        const user = auth.currentUser;
+        await deleteUser(user);
+      }
+
+      // 예를 들어, 로그아웃 버튼 클릭 시 사용자 삭제를 원할 경우
+      document
+        .getElementById("logout-button")
+        .addEventListener("click", async () => {
+          try {
+            const userId = auth.currentUser.uid;
+            await deleteUserAndData(userId);
+            alert("사용자 계정 및 데이터가 삭제되었습니다.");
+            // 로그아웃 후 UI 업데이트
+            document.getElementById("login-card").style.display = "block";
+            document.getElementById("welcome-card").style.display = "none";
+            localStorage.removeItem("userId");
+            localStorage.removeItem("nickname");
+          } catch (error) {}
+        });
+
+      async function loadPosts(searchTitle = "") {
+        const postList = document.getElementById("post-list");
+        postList.innerHTML =
+          '<tr><td colspan="4">게시글을 불러오는 중...</td></tr>';
+        try {
+          let q;
+          if (searchTitle) {
+            q = query(
+              collection(db, "posts"),
+              where("title", "==", searchTitle)
+            );
+          } else {
+            q = query(collection(db, "posts"));
+          }
+          const querySnapshot = await getDocs(q);
+          postList.innerHTML = "";
+          querySnapshot.forEach((doc) => {
+            const post = doc.data();
+            const tr = document.createElement("tr");
+            tr.className = "post-row";
+            tr.addEventListener("click", () => {
+              location.href = `view.html?id=${doc.id}`;
+            });
+            const author = post.author.split("@")[0]; // 이메일 로컬 부분만 사용
+            tr.innerHTML = `
+                    <td>${post.category}</td>
+                    <td>${post.title}</td>
+                    <td>${author}</td>
+                    <td>${timestampToDate(
+                      post.timestamp
+                    ).toLocaleDateString()}</td>`;
+            postList.appendChild(tr);
+          });
+        } catch (error) {
+          console.error("Error loading posts: ", error);
+          postList.innerHTML =
+            '<tr><td colspan="4">게시글을 불러오는데 실패했습니다.</td></tr>';
+        }
+      }
+
+      // 페이지 로드 시 게시글 불러오기
+      loadPosts();
+
+      // 검색 이벤트
+      document
+        .getElementById("search-form")
+        .addEventListener("submit", (event) => {
+          event.preventDefault();
+          const searchTitle = document.getElementById("search-input").value;
+          loadPosts(searchTitle);
+        });
+
+      // Firebase 인증 상태 변경을 감지하여 로그인 상태 유지
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          const emailLocalPart = user.email.split("@")[0];
+          document.getElementById("login-card").style.display = "none";
+          document.getElementById("welcome-card").style.display = "block";
+          document.getElementById(
+            "welcome-message"
+          ).textContent = `${emailLocalPart}님 환영합니다.`;
+          localStorage.setItem("userId", user.uid);
+          localStorage.setItem("nickname", emailLocalPart);
+        } else {
+          document.getElementById("login-card").style.display = "block";
+          document.getElementById("welcome-card").style.display = "none";
+          localStorage.removeItem("userId");
+          localStorage.removeItem("nickname");
+        }
+      });
+    </script>
+  </body>
+</html>

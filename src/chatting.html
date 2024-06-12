@@ -1,76 +1,88 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Room</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
     <div class="wrapper">
-        <div class="user-container">
-            <label id="nicknameLabel"></label>
-            <p id="enterMessage"></p>
+      <div class="user-container">
+        <label id="nicknameLabel"></label>
+        <p id="enterMessage"></p>
+        <p id="roomNumber"></p>
+        <!-- 방 번호 표시 -->
+      </div>
+      <div class="display-container">
+        <ul class="chatting-list">
+          <!-- Chat messages will be displayed here -->
+        </ul>
+        <div class="typing-indicator" style="display: none">
+          누군가가 입력 중입니다...
         </div>
-        <div class="display-container">
-            <ul class="chatting-list">
-                <!-- Chat messages will be displayed here -->
-            </ul>
-            <div class="typing-indicator" style="display: none">
-                누군가가 입력 중입니다...
-            </div>
-        </div>
-        <div class="input-container">
-            <span>
-                <input type="text" class="chatting-input" />
-                <button class="send-button">전송</button>
-            </span>
-        </div>
+      </div>
+      <div class="input-container">
+        <span>
+          <input type="text" class="chatting-input" />
+          <button class="send-button">전송</button>
+        </span>
+      </div>
     </div>
 
     <!-- Include Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="js/chat.js"></script>
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="js/chat.js"></script>
+
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
-            authDomain: "website-b8e72.firebaseapp.com",
-            projectId: "website-b8e72",
-            storageBucket: "website-b8e72.appspot.com",
-            messagingSenderId: "36605001158",
-            appId: "1:36605001158:web:46eeeae785ca41693346c7",
-            measurementId: "G-NHP9CW0B2L"
-        };
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
+        authDomain: "website-b8e72.firebaseapp.com",
+        projectId: "website-b8e72",
+        storageBucket: "website-b8e72.appspot.com",
+        messagingSenderId: "36605001158",
+        appId: "1:36605001158:web:46eeeae785ca41693346c7",
+        measurementId: "G-NHP9CW0B2L",
+      };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
 
-        // Check user login state
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                const emailLocalPart = user.email.split('@')[0];
-                localStorage.setItem('nickname', emailLocalPart);
-                document.getElementById('nicknameLabel').textContent = `${emailLocalPart}님 환영합니다.`;
+      // Function to get URL parameters
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
 
-                // Retrieve chat room ID and title from local storage
-                const chatRoomId = localStorage.getItem('chatRoomId');
-                const chatTitle = localStorage.getItem('chatTitle');
-                if (chatRoomId && chatTitle) {
-                    document.getElementById('enterMessage').innerText = `"${chatTitle}" 채팅방에 입장했습니다.`;
-                    localStorage.setItem('roomId', chatRoomId);
-                } else {
-                    console.error("Chat room ID or title is not set in local storage.");
-                }
-            } else {
-                window.location.href = "login.html";
-            }
-        });
+      // Check user login state
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          const emailLocalPart = user.email.split("@")[0];
+          localStorage.setItem("nickname", emailLocalPart);
+          document.getElementById(
+            "nicknameLabel"
+          ).textContent = `${emailLocalPart}님 환영합니다.`;
+
+          // Get chat room ID from local storage
+          const chatRoomId = localStorage.getItem("chatRoomId");
+          const chatTitle = localStorage.getItem("chatTitle");
+
+          if (chatRoomId && chatTitle) {
+            document.getElementById(
+              "enterMessage"
+            ).innerText = `"${chatTitle}" 채팅방에 입장했습니다.`;
+          } else {
+            console.error("Chat room ID or title is not set in local storage.");
+          }
+        } else {
+          window.location.href = "homepage.html";
+        }
+      });
     </script>
-</body>
+  </body>
 </html>

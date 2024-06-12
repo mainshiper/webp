@@ -16,15 +16,15 @@
     />
     <style>
       #write-title:hover {
-        cursor: pointer;
-        text-decoration: underline;
-      }
+            cursor: pointer;
+            text-decoration: underline;
+        }
     </style>
   </head>
   <body>
     <header class="bg-dark text-white text-center py-3">
       <h1 id="write-title" class="mt-3 mb-3 click-animation">웹 커뮤니티</h1>
-    </header>
+      </header>
     <div class="container">
       <h1 class="mt-5 mb-3">새로운 글쓰기</h1>
       <button id="back-button" class="btn btn-secondary mb-3">뒤로 가기</button>
@@ -118,22 +118,11 @@
       writeForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const title = document.getElementById("title").value.trim();
-        const author = document.getElementById("author").value.trim();
+        const title = document.getElementById("title").value;
+        const author = document.getElementById("author").value;
         const authorId = auth.currentUser.uid; // 사용자 ID 가져오기
         const category = document.getElementById("category").value;
-        const content = quill.root.innerHTML.trim();
-
-        // 제목과 내용을 입력했는지 확인
-        if (!title) {
-          alert("제목을 입력하세요.");
-          return;
-        }
-
-        if (content === "<p><br></p>" || !content) {
-          alert("내용을 입력하세요.");
-          return;
-        }
+        const content = quill.root.innerHTML;
 
         try {
           const docRef = await addDoc(collection(db, "posts"), {
@@ -158,14 +147,16 @@
       document.getElementById("back-button").addEventListener("click", () => {
         window.history.back();
       });
-      document.getElementById("write-title").addEventListener("click", () => {
-        window.location.href = "homepage.html";
-      });
+      document.getElementById('write-title').addEventListener('click', () => {
+            window.location.href = "homepage.html";
+        });
     </script>
 
     <!-- Quill JS -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <!-- Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js">
+      
+    </script>
   </body>
 </html>

@@ -43,16 +43,16 @@
         color: red;
       }
       #view-title:hover {
-        cursor: pointer;
-        text-decoration: underline;
-      }
+            cursor: pointer;
+            text-decoration: underline;
+        }
     </style>
   </head>
   <body>
     <header class="bg-dark text-white text-center py-3">
-      <h1 id="view-title" class="mt-3 mb-3 click-animation">웹 커뮤니티</h1>
+    <h1 id="view-title" class="mt-3 mb-3 click-animation">웹 커뮤니티</h1>
     </header>
-
+    
     <div class="container mt-4">
       <div class="mb-3">
         <h1>게시글 보기</h1>
@@ -311,9 +311,9 @@
       document.getElementById("back-button").addEventListener("click", () => {
         window.history.back();
       });
-      document.getElementById("view-title").addEventListener("click", () => {
-        window.location.href = "homepage.html";
-      });
+      document.getElementById('view-title').addEventListener('click', () => {
+            window.location.href = "homepage.html";
+        });
     </script>
   </body>
 </html>

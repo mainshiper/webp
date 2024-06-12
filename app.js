@@ -21,12 +21,13 @@ const db = getFirestore();
 
 app.use(express.static(path.join(__dirname, "src")));
 const PORT = process.env.PORT || 5000;
-app.get('/homepage', function (req, res) {
-  res.sendFile(__dirname + '/homepage.html');
-});
 app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/homepage.html');
+  res.sendFile(__dirname + '/src/homepage.html');
 });
+app.get('/homepage', function (req, res) {
+  res.sendFile(__dirname + '/src/homepage.html');
+});
+
 
 io.on("connection", async (socket) => {
   console.log('a user connected');
