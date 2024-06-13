@@ -1,146 +1,170 @@
+/* 기본적인 마진과 패딩 제거, 박스 크기 설정 */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* HTML과 body 태그의 높이 설정 및 기본 폰트 설정 */
 html, body {
   height: 100%;
   font-family: Arial, sans-serif;
 }
 
+/* 전체 래퍼의 높이 설정 및 플렉스 박스 사용 */
 .wrapper {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
+/* 사용자 컨테이너 스타일 설정 */
 .user-container {
-  background: #a9bdce;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
+  background: #a9bdce; /* 배경 색상 */
+  padding: 1rem; /* 패딩 설정 */
+  display: flex; /* 플렉스 박스 사용 */
+  align-items: center; /* 수직 정렬 */
 }
 
+/* 사용자 컨테이너 내 레이블의 오른쪽 마진 설정 */
 .user-container label {
   margin-right: 1rem;
 }
 
+/* 사용자 입력 필드 스타일 설정 */
 .user-container input {
-  flex: 1;
+  flex: 1; /* 가용 가능한 공간 모두 차지 */
   padding: 0.5rem;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #ccc; /* 테두리 색상 */
 }
 
+/* 채팅 메시지 표시 컨테이너 스타일 설정 */
 .display-container {
-  background: #b2c7d9;
-  flex: 1;
-  overflow-y: auto;
+  background: #b2c7d9; /* 배경 색상 */
+  flex: 1; /* 가용 가능한 공간 모두 차지 */
+  overflow-y: auto; /* 세로 스크롤 설정 */
   padding: 1rem;
 }
 
+/* 채팅 목록 스타일 설정 */
 .chatting-list {
-  list-style: none;
+  list-style: none; /* 목록 스타일 제거 */
 }
 
+/* 채팅 목록 항목 스타일 설정 */
 .chatting-list li {
-  display: flex;
-  align-items: flex-end;
+  display: flex; /* 플렉스 박스 사용 */
+  align-items: flex-end; /* 항목의 끝 정렬 */
   margin-bottom: 1rem;
 }
 
+/* 프로필 컨테이너 스타일 설정 */
 .profile {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: column; /* 세로 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
   margin-right: 0.5rem;
 }
 
+/* 프로필 사용자명 스타일 설정 */
 .profile .user {
   font-size: 12px;
   margin-bottom: 0.3rem;
 }
 
+/* 프로필 이미지 스타일 설정 */
 .profile .image {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: 50%; /* 원형으로 설정 */
+  object-fit: cover; /* 이미지 커버 설정 */
 }
 
+/* 메시지 스타일 설정 */
 .message {
-  max-width: 60%;
+  max-width: 60%; /* 최대 너비 설정 */
   padding: 0.5rem;
   border-radius: 10px;
   font-size: 14px;
-  margin-right: 10px; /* 메시지와 시간을 띄우기 위한 오른쪽 마진 */
+  margin-right: 10px; /* 메시지와 시간 사이의 오른쪽 마진 */
 }
 
+/* 시간 표시 스타일 설정 */
 .time {
   font-size: 10px;
-  margin-left: 10px; /* 메시지와 시간을 띄우기 위한 왼쪽 마진 */
-  color: #555;
+  margin-left: 10px; /* 메시지와 시간 사이의 왼쪽 마진 */
+  color: #555; /* 글자 색상 */
 }
 
+/* 보낸 메시지 정렬 */
 .sent {
-  justify-content: flex-end;
+  justify-content: flex-end; /* 오른쪽 정렬 */
 }
 
+/* 보낸 메시지 스타일 설정 */
 .sent .message {
-  background: #ffeb33;
+  background: #ffeb33; /* 배경 색상 */
 }
 
+/* 받은 메시지 정렬 */
 .received {
-  justify-content: flex-start;
+  justify-content: flex-start; /* 왼쪽 정렬 */
 }
 
+/* 받은 메시지 스타일 설정 */
 .received .message {
-  background: #fff;
+  background: #fff; /* 배경 색상 */
 }
 
+/* 입력 컨테이너 스타일 설정 */
 .input-container {
   display: flex;
   padding: 1rem;
-  background: #f1f1f1;
-  align-items: center;
+  background: #f1f1f1; /* 배경 색상 */
+  align-items: center; /* 수직 정렬 */
 }
 
+/* 입력 컨테이너 내 스팬 스타일 설정 */
 .input-container span {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  align-items: center; /* 수직 정렬 */
+  width: 100%; /* 가로 너비 설정 */
 }
 
+/* 입력 필드 스타일 설정 */
 .input-container input {
-  flex: 1; /* 입력 칸이 가용 가능한 공간을 모두 차지하도록 설정 */
+  flex: 1; /* 가용 가능한 공간 모두 차지 */
   padding: 0.5rem;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #ccc; /* 테두리 색상 */
   margin-right: 1rem;
-  width: calc(100% - 110px); /* 입력 칸이 버튼을 제외한 전체 너비를 차지하도록 설정 */
+  width: calc(100% - 110px); /* 입력 필드 너비 계산 */
 }
 
+/* 전송 버튼 스타일 설정 */
 .send-button {
   padding: 0.5rem 1rem;
-  background: #ffeb33;
-  border: none;
+  background: #ffeb33; /* 배경 색상 */
+  border: none; /* 테두리 없음 */
   border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px; /* 버튼 크기를 조절하기 위해 폰트 크기를 크게 설정 */
-  flex-shrink: 0; /* 버튼이 축소되지 않도록 설정 */
-  width: 100px; /* 버튼이 고정된 크기를 유지하도록 설정 */
-  height: 100%; /* 버튼이 입력 필드의 높이에 맞춰지도록 설정 */
+  cursor: pointer; /* 커서 모양 변경 */
+  font-size: 16px; /* 폰트 크기 설정 */
+  flex-shrink: 0; /* 버튼 크기 축소 금지 */
+  width: 100px; /* 버튼 너비 설정 */
+  height: 100%; /* 버튼 높이 설정 */
 }
 
+/* 타이핑 표시기 스타일 설정 */
 .typing-indicator {
-  animation: blink 1s infinite alternate;
+  animation: blink 1s infinite alternate; /* 깜박임 애니메이션 설정 */
   margin-top: 1rem;
-  color: #555;
-  text-align: center;
+  color: #555; /* 글자 색상 */
+  text-align: center; /* 가운데 정렬 */
 }
 
+/* 깜박임 애니메이션 설정 */
 @keyframes blink {
   0% {
     opacity: 0;

@@ -50,25 +50,33 @@
   </head>
   <body>
     <header class="bg-dark text-white text-center py-3">
+      <!-- 제목 (웹 커뮤니티) -->
       <h1 id="view-title" class="mt-3 mb-3 click-animation">웹 커뮤니티</h1>
     </header>
 
     <div class="container mt-4">
       <div class="mb-3">
+        <!-- 페이지 제목 -->
         <h1>게시글 보기</h1>
+        <!-- 게시글 정보 표시 영역 -->
         <div id="view-info" class="mb-4"></div>
+        <!-- 홈페이지로 가기 버튼 -->
         <button id="home-button" class="btn btn-primary">
           홈페이지로 가기
         </button>
+        <!-- 뒤로 가기 버튼 -->
         <button id="back-button" class="btn btn-secondary">뒤로 가기</button>
       </div>
       <div class="card mb-4">
         <div class="card-body">
+          <!-- 게시글 제목 -->
           <h5 id="postTitle"></h5>
+          <!-- 게시글 내용 -->
           <div id="postContent"></div>
           <p><strong>카테고리:</strong> <span id="postCategory"></span></p>
           <p><strong>글쓴이:</strong> <span id="postAuthor"></span></p>
           <p><strong>작성일:</strong> <span id="postTimestamp"></span></p>
+          <!-- 채팅방 입장 버튼 -->
           <a href="chatting.html" class="chat-button" id="chatting-button"
             >채팅방 입장</a
           >
@@ -97,6 +105,7 @@
                 placeholder="내용"
               ></textarea>
             </div>
+            <!-- 댓글 작성 버튼 -->
             <button type="button" class="btn btn-dark" id="submitComment">
               댓글 작성
             </button>
@@ -112,6 +121,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script type="module">
+      // Firebase SDK 함수 임포트
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
         getFirestore,
@@ -130,6 +140,7 @@
         onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+      // Firebase 설정 객체
       const firebaseConfig = {
         apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
         authDomain: "website-b8e72.firebaseapp.com",
@@ -140,15 +151,18 @@
         measurementId: "G-NHP9CW0B2L",
       };
 
+      // Firebase 초기화
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
       const auth = getAuth(app);
 
+      // URL 매개변수에서 게시글 ID 가져오기
       const urlParams = new URLSearchParams(window.location.search);
       const postId = urlParams.get("id");
       let currentNickname = null;
       let editingCommentId = null;
 
+      // Firestore 타임스탬프를 날짜로 변환하는 함수
       function timestampToDate(timestamp) {
         const seconds = timestamp.seconds;
         const nanoseconds = timestamp.nanoseconds;
@@ -156,6 +170,7 @@
         return new Date(milliseconds);
       }
 
+      // 게시글 로드 함수
       async function loadPost(postId) {
         const postDoc = doc(db, "posts", postId);
         try {
@@ -186,6 +201,7 @@
         }
       }
 
+      // 댓글 로드 함수
       async function loadComments(postId) {
         const commentList = document.getElementById("commentList");
         commentList.innerHTML =
@@ -225,6 +241,7 @@
         }
       }
 
+      // 댓글 제출 함수
       async function submitComment() {
         const author = document.getElementById("commentAuthor").value;
         const content = document.getElementById("commentContent").value;
@@ -265,6 +282,7 @@
         }
       }
 
+      // 댓글 삭제 함수
       async function deleteComment(commentId) {
         if (confirm("댓글을 삭제하시겠습니까?")) {
           try {
@@ -277,12 +295,14 @@
         }
       }
 
+      // 댓글 수정 함수
       function editComment(commentId, content) {
         document.getElementById("commentContent").value = content;
         editingCommentId = commentId;
         document.getElementById("submitComment").textContent = "댓글 수정";
       }
 
+      // 사용자 인증 상태 변경 감지
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentNickname = user.email.split("@")[0];
@@ -295,22 +315,26 @@
         }
       });
 
+      // 게시글 및 댓글 로드
       loadPost(postId);
       loadComments(postId);
 
+      // 댓글 작성 버튼 클릭 이벤트 리스너
       document
         .getElementById("submitComment")
         .addEventListener("click", submitComment);
 
-      // 홈페이지로 가기 버튼
+      // 홈페이지로 가기 버튼 클릭 이벤트 리스너
       document.getElementById("home-button").addEventListener("click", () => {
         window.location.href = "homepage.html";
       });
 
-      // 뒤로 가기 버튼
+      // 뒤로 가기 버튼 클릭 이벤트 리스너
       document.getElementById("back-button").addEventListener("click", () => {
         window.history.back();
       });
+
+      // 제목 클릭 시 홈페이지로 이동
       document.getElementById("view-title").addEventListener("click", () => {
         window.location.href = "homepage.html";
       });

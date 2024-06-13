@@ -15,6 +15,7 @@
       rel="stylesheet"
     />
     <style>
+      /* 제목에 마우스를 올렸을 때 포인터 커서와 밑줄 추가 */
       #fix-title:hover {
         cursor: pointer;
         text-decoration: underline;
@@ -23,6 +24,7 @@
   </head>
   <body>
     <header class="bg-dark text-white text-center py-3">
+      <!-- 제목 (웹 커뮤니티) -->
       <h1 id="fix-title" class="mt-3 mb-3 click-animation">웹 커뮤니티</h1>
     </header>
     <div class="container">
@@ -31,10 +33,13 @@
         <span>&larr;</span>
       </button>
 
+      <!-- 페이지 제목 -->
       <h1>게시글 수정</h1>
 
+      <!-- 게시글 수정 폼 -->
       <form id="edit-form">
         <div class="form-group">
+          <!-- 제목 입력 필드 -->
           <label for="title">제목</label>
           <input
             type="text"
@@ -44,6 +49,7 @@
           />
         </div>
         <div class="form-group">
+          <!-- 작성자 입력 필드 (읽기 전용) -->
           <label for="author">작성자</label>
           <input
             type="text"
@@ -54,6 +60,7 @@
           />
         </div>
         <div class="form-group">
+          <!-- 카테고리 선택 필드 -->
           <label for="category">분야</label>
           <select class="form-control" id="category">
             <option value="일반/자유">일반/자유</option>
@@ -64,16 +71,18 @@
           </select>
         </div>
         <div class="form-group">
+          <!-- 내용 입력 필드 (Quill 에디터) -->
           <label for="content">내용</label>
           <div id="editor" style="height: 300px"></div>
         </div>
+        <!-- 수정 완료 버튼 -->
         <button type="submit" class="btn btn-primary">수정 완료</button>
       </form>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
-      // Import the functions you need from the SDKs you need
+      // 필요한 Firebase SDK 함수들을 임포트
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
         getAuth,
@@ -86,7 +95,7 @@
         getDoc,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-      // Your web app's Firebase configuration
+      // Firebase 설정
       const firebaseConfig = {
         apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
         authDomain: "website-b8e72.firebaseapp.com",
@@ -97,7 +106,7 @@
         measurementId: "G-NHP9CW0B2L",
       };
 
-      // Initialize Firebase
+      // Firebase 초기화
       const app = initializeApp(firebaseConfig);
       const auth = getAuth();
       const db = getFirestore(app);
@@ -107,7 +116,7 @@
         theme: "snow",
       });
 
-      // Local storage에서 게시물 정보 가져오기
+      // 로컬 스토리지에서 게시물 정보 가져오기
       const postId = localStorage.getItem("editPostId");
       const postTitle = localStorage.getItem("editPostTitle");
       const postContent = localStorage.getItem("editPostContent");
@@ -118,8 +127,10 @@
       quill.clipboard.dangerouslyPasteHTML(postContent); // 기존 내용을 Quill 에디터에 채우기
       document.getElementById("category").value = postCategory;
 
+      // 사용자가 로그인 상태인지 확인
       onAuthStateChanged(auth, (user) => {
         if (user) {
+          // 사용자 닉네임을 로컬 스토리지에서 가져와 작성자 필드에 채우기
           const nickname = localStorage.getItem("nickname");
           document.getElementById("author").value = nickname;
         } else {
@@ -128,6 +139,7 @@
         }
       });
 
+      // 게시글 수정 폼 제출 이벤트 처리
       document
         .getElementById("edit-form")
         .addEventListener("submit", async (e) => {
@@ -137,7 +149,9 @@
           const newCategory = document.getElementById("category").value;
 
           try {
+            // Firebase Firestore의 문서 참조
             const postRef = doc(db, "posts", postId);
+            // 문서 업데이트
             await updateDoc(postRef, {
               title: newTitle,
               content: newContent,
@@ -150,10 +164,13 @@
             alert("게시글 수정에 실패했습니다.");
           }
         });
+
+      // 뒤로가기 버튼 클릭 이벤트 처리
       document.getElementById("back-button").addEventListener("click", () => {
         history.back();
       });
 
+      // 제목 클릭 시 홈페이지로 이동
       document.getElementById("fix-title").addEventListener("click", () => {
         window.location.href = "homepage.html";
       });

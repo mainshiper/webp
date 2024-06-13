@@ -4,24 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Room</title>
+    <!-- 스타일 시트 링크 -->
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
+    <!-- 전체 레이아웃을 감싸는 래퍼 -->
     <div class="wrapper">
+      <!-- 사용자 정보 및 방 정보를 표시하는 컨테이너 -->
       <div class="user-container">
         <label id="nicknameLabel"></label>
         <p id="enterMessage"></p>
         <p id="roomNumber"></p>
         <!-- 방 번호 표시 -->
       </div>
+      <!-- 채팅 메시지를 표시하는 컨테이너 -->
       <div class="display-container">
         <ul class="chatting-list">
-          <!-- Chat messages will be displayed here -->
+          <!-- 채팅 메시지가 여기에 표시됩니다 -->
         </ul>
         <div class="typing-indicator" style="display: none">
           누군가가 입력 중입니다...
         </div>
       </div>
+      <!-- 입력 필드 및 전송 버튼을 포함하는 컨테이너 -->
       <div class="input-container">
         <span>
           <input type="text" class="chatting-input" />
@@ -30,16 +35,20 @@
       </div>
     </div>
 
-    <!-- Include Firebase SDK -->
+    <!-- Firebase SDK 포함 -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <!-- jQuery 포함 -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Socket.IO 클라이언트 라이브러리 포함 -->
     <script src="/socket.io/socket.io.js"></script>
+    <!-- Bootstrap JS 포함 -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- 커스텀 자바스크립트 파일 포함 -->
     <script src="js/chat.js"></script>
 
     <script>
-      // Firebase configuration
+      // Firebase 설정
       const firebaseConfig = {
         apiKey: "AIzaSyA412fvUjgEcsFIDNoreoSjpl2kJwkUr7s",
         authDomain: "website-b8e72.firebaseapp.com",
@@ -50,25 +59,20 @@
         measurementId: "G-NHP9CW0B2L",
       };
 
-      // Initialize Firebase
+      // Firebase 초기화
       firebase.initializeApp(firebaseConfig);
 
-      // Function to get URL parameters
-      function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-      }
-
-      // Check user login state
+      // 사용자 로그인 상태 확인
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
+          // 사용자 이메일의 로컬 부분(아이디) 가져오기
           const emailLocalPart = user.email.split("@")[0];
           localStorage.setItem("nickname", emailLocalPart);
           document.getElementById(
             "nicknameLabel"
           ).textContent = `${emailLocalPart}님 환영합니다.`;
 
-          // Get chat room ID from local storage
+          // 로컬 스토리지에서 채팅방 ID와 제목 가져오기
           const chatRoomId = localStorage.getItem("chatRoomId");
           const chatTitle = localStorage.getItem("chatTitle");
 
@@ -80,6 +84,7 @@
             console.error("Chat room ID or title is not set in local storage.");
           }
         } else {
+          // 사용자가 로그인하지 않은 경우 홈페이지로 리디렉션
           window.location.href = "homepage.html";
         }
       });
